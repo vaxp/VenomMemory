@@ -14,8 +14,8 @@
 #include <sched.h>
 #include "venom_memory.h"
 
-#define NUM_ITERATIONS 1000
-#define WARMUP_ITERATIONS 50
+#define NUM_ITERATIONS 1000000
+#define WARMUP_ITERATIONS 1000
 
 /* Get current time in nanoseconds */
 static inline uint64_t get_time_ns(void) {
