@@ -1,0 +1,1 @@
+/usr/bin/cc  -Wall -Wextra -pedantic -O3 -DNDEBUG CMakeFiles/test_channel.dir/tests/test_channel.c.o -o test_channel  -Wl,-rpath,/home/x/Desktop/VenomMemory/build libvenom_memory.so 

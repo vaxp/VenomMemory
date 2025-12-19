@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC  -Wall -Wextra -pedantic -O3 -DNDEBUG -shared -Wl,-soname,libvenom_memory.so -o libvenom_memory.so CMakeFiles/venom_memory.dir/src/venom_shm.c.o CMakeFiles/venom_memory.dir/src/venom_sync.c.o CMakeFiles/venom_memory.dir/src/venom_channel.c.o  -lrt -lpthread 

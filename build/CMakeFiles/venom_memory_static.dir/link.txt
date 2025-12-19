@@ -1,0 +1,2 @@
+/usr/bin/ar qc libvenom_memory.a CMakeFiles/venom_memory_static.dir/src/venom_shm.c.o CMakeFiles/venom_memory_static.dir/src/venom_sync.c.o CMakeFiles/venom_memory_static.dir/src/venom_channel.c.o
+/usr/bin/ranlib libvenom_memory.a

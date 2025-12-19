@@ -1,0 +1,1 @@
+/usr/bin/cc  -Wall -Wextra -pedantic -O3 -DNDEBUG CMakeFiles/example_shell.dir/examples/example_shell.c.o -o example_shell  -Wl,-rpath,/home/x/Desktop/VenomMemory/build libvenom_memory.so 

@@ -1,0 +1,1 @@
+/usr/bin/cc  -Wall -Wextra -pedantic -O3 -DNDEBUG CMakeFiles/benchmark.dir/tests/benchmark.c.o -o benchmark  -Wl,-rpath,/home/x/Desktop/VenomMemory/build libvenom_memory.so 

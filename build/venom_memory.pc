@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: VenomMemory
+Description: High-Performance Shared Memory IPC Library
+Version: 1.0.0
+Libs: -L${libdir} -lvenom_memory -lrt -lpthread
+Cflags: -I${includedir}
