@@ -1,0 +1,89 @@
+x@x-HP-ZBook-15u-G6:~/Desktop/VenomMemory/venom_memory_rs$ cd /home/x/Desktop/VenomMemory/venom_memory_rs && cargo run --release --example ultra_test 2>&1
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target/release/examples/ultra_test`
+╔═══════════════════════════════════════════════════════════════╗
+║   VenomMemory Rust - ULTRA Performance Test                   ║
+║   Goal: Beat 23.3 GB/s with 4 channels @ 256KB                ║
+║   Available CPUs: 8                                           ║
+╚═══════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════
+Testing: 2 parallel channels, 1024 bytes (1.00 KB)
+═══════════════════════════════════════════════════════════════
+Creating 2 channels...
+Starting 2 writer threads...
+Starting 2 reader threads...
+
+┌─────────┬───────────┬──────────┬──────────────┐
+│ Channel │ Successful│ Avg (µs) │ Max (µs)     │
+├─────────┼───────────┼──────────┼──────────────┤
+│    0    │     10000  │     0.26 │        13.13 │
+│    1    │     10000  │     0.25 │        17.96 │
+└─────────┴───────────┴──────────┴──────────────┘
+
+📊 AGGREGATE RESULTS:
+   Channels:         2
+   Total successful: 20000 / 20000
+   Test duration:    0.00 seconds
+   Avg latency:      0.25 µs
+   Min latency:      0.03 µs
+   Max latency:      17.96 µs (0.02 ms)
+   ⚡ THROUGHPUT:     6528176 req/s (total)
+   📶 BANDWIDTH:      13369.70 MB/s = 13.37 GB/s (total, bidirectional)
+
+═══════════════════════════════════════════════════════════════
+Testing: 4 parallel channels, 262144 bytes (256.00 KB)
+═══════════════════════════════════════════════════════════════
+Creating 4 channels...
+Starting 4 writer threads...
+Starting 4 reader threads...
+
+┌─────────┬───────────┬──────────┬──────────────┐
+│ Channel │ Successful│ Avg (µs) │ Max (µs)     │
+├─────────┼───────────┼──────────┼──────────────┤
+│    0    │    100000  │    51.94 │      5329.29 │
+│    1    │    100000  │    49.13 │      7080.08 │
+│    2    │    100000  │    54.56 │      9060.58 │
+│    3    │    100000  │    49.97 │      7101.21 │
+└─────────┴───────────┴──────────┴──────────────┘
+
+📊 AGGREGATE RESULTS:
+   Channels:         4
+   Total successful: 400000 / 400000
+   Test duration:    5.47 seconds
+   Avg latency:      51.40 µs
+   Min latency:      7.35 µs
+   Max latency:      9060.58 µs (9.06 ms)
+   ⚡ THROUGHPUT:     73155 req/s (total)
+   📶 BANDWIDTH:      38354.47 MB/s = 38.35 GB/s (total, bidirectional)
+
+═══════════════════════════════════════════════════════════════
+Testing: 4 parallel channels, 262144 bytes (256.00 KB)
+═══════════════════════════════════════════════════════════════
+Creating 4 channels...
+Starting 4 writer threads...
+Starting 4 reader threads...
+
+┌─────────┬───────────┬──────────┬──────────────┐
+│ Channel │ Successful│ Avg (µs) │ Max (µs)     │
+├─────────┼───────────┼──────────┼──────────────┤
+│    0    │    100000  │    58.27 │      5081.49 │
+│    1    │    100000  │    58.81 │      8058.27 │
+│    2    │    100000  │    59.20 │      9084.31 │
+│    3    │    100000  │    59.42 │      9590.80 │
+└─────────┴───────────┴──────────┴──────────────┘
+
+📊 AGGREGATE RESULTS:
+   Channels:         4
+   Total successful: 400000 / 400000
+   Test duration:    5.95 seconds
+   Avg latency:      58.92 µs
+   Min latency:      11.11 µs
+   Max latency:      9590.80 µs (9.59 ms)
+   ⚡ THROUGHPUT:     67208 req/s (total)
+   📶 BANDWIDTH:      35236.38 MB/s = 35.24 GB/s (total, bidirectional)
+
+╔═══════════════════════════════════════════════════════════════╗
+║                    Test Complete!                             ║
+╚═══════════════════════════════════════════════════════════════╝
+x@x-HP-ZBook-15u-G6:~/Desktop/VenomMemory/venom_memory_rs$ 
