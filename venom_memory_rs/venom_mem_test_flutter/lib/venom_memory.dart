@@ -108,6 +108,30 @@ class VenomShell {
     destroy(_handle!);
     _handle = null;
   }
+
+  /// Send command to daemon
+  bool sendCommand(String cmd) {
+    if (_handle == null) return false;
+
+    final lib = _loadLibrary();
+
+    final sendFn = lib
+        .lookupFunction<
+          Uint8 Function(Pointer<Void>, Pointer<Uint8>, IntPtr),
+          int Function(Pointer<Void>, Pointer<Uint8>, int)
+        >('venom_shell_send_command');
+
+    final cmdBytes = cmd.codeUnits;
+    final cmdPtr = calloc<Uint8>(cmdBytes.length);
+    for (int i = 0; i < cmdBytes.length; i++) {
+      cmdPtr[i] = cmdBytes[i];
+    }
+
+    final result = sendFn(_handle!, cmdPtr, cmdBytes.length);
+    calloc.free(cmdPtr);
+
+    return result != 0;
+  }
 }
 
 /// SystemStats struct - must match Rust daemon's struct

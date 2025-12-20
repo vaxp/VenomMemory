@@ -213,6 +213,35 @@ class _SystemMonitorPageState extends State<SystemMonitorPage> {
           ),
           const SizedBox(height: 24),
 
+          // Command Button
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                final success = _shell?.sendCommand('FAKE_100') ?? false;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? '✅ Command sent: FAKE_100'
+                          : '❌ Failed to send command',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.science),
+              label: const Text('Test: Fake 100% CPU (5s)'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade700,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Footer
           Center(
             child: Text(

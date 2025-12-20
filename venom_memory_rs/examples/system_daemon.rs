@@ -123,8 +123,21 @@ fn main() {
     
     let mut prev_times = read_cpu_times();
     let start = Instant::now();
+    let mut fake_until: Option<Instant> = None;
     
     loop {
+        // Check for commands from shells
+        let mut cmd_buf = [0u8; 64];
+        if let Some((client_id, len)) = daemon.try_recv_command(&mut cmd_buf) {
+            let cmd_str = String::from_utf8_lossy(&cmd_buf[..len]);
+            println!("\n📥 Received command from client {}: {}", client_id, cmd_str);
+            
+            if cmd_str == "FAKE_100" {
+                fake_until = Some(Instant::now() + Duration::from_secs(5));
+                println!("⚡ Faking 100% CPU for 5 seconds!");
+            }
+        }
+        
         // Read current CPU times
         let curr_times = read_cpu_times();
         
@@ -132,30 +145,44 @@ fn main() {
         let mut stats = SystemStats::default();
         stats.core_count = (curr_times.len().saturating_sub(1)).min(16) as u32;
         
-        // Overall CPU (index 0 is aggregate)
-        if !prev_times.is_empty() && !curr_times.is_empty() {
-            let prev = &prev_times[0];
-            let curr = &curr_times[0];
-            
-            let total_diff = curr.total().saturating_sub(prev.total());
-            let active_diff = curr.active().saturating_sub(prev.active());
-            
-            if total_diff > 0 {
-                stats.cpu_usage_percent = (active_diff as f32 / total_diff as f32) * 100.0;
-            }
-        }
+        // Check if we should fake 100%
+        let fake_mode = fake_until.map(|t| Instant::now() < t).unwrap_or(false);
         
-        // Per-core CPU
-        for i in 1..curr_times.len().min(17) {
-            if i < prev_times.len() {
-                let prev = &prev_times[i];
-                let curr = &curr_times[i];
+        if fake_mode {
+            // Fake 100% CPU
+            stats.cpu_usage_percent = 100.0;
+            for i in 0..stats.core_count as usize {
+                stats.cpu_cores[i] = 100.0;
+            }
+        } else {
+            // Real CPU measurement
+            fake_until = None;
+            
+            // Overall CPU (index 0 is aggregate)
+            if !prev_times.is_empty() && !curr_times.is_empty() {
+                let prev = &prev_times[0];
+                let curr = &curr_times[0];
                 
                 let total_diff = curr.total().saturating_sub(prev.total());
                 let active_diff = curr.active().saturating_sub(prev.active());
                 
                 if total_diff > 0 {
-                    stats.cpu_cores[i - 1] = (active_diff as f32 / total_diff as f32) * 100.0;
+                    stats.cpu_usage_percent = (active_diff as f32 / total_diff as f32) * 100.0;
+                }
+            }
+            
+            // Per-core CPU
+            for i in 1..curr_times.len().min(17) {
+                if i < prev_times.len() {
+                    let prev = &prev_times[i];
+                    let curr = &curr_times[i];
+                    
+                    let total_diff = curr.total().saturating_sub(prev.total());
+                    let active_diff = curr.active().saturating_sub(prev.active());
+                    
+                    if total_diff > 0 {
+                        stats.cpu_cores[i - 1] = (active_diff as f32 / total_diff as f32) * 100.0;
+                    }
                 }
             }
         }
@@ -179,7 +206,9 @@ fn main() {
         daemon.write_data(bytes);
         
         // Debug output
-        print!("\r🖥️  CPU: {:5.1}% | RAM: {}/{} MB | Uptime: {}s    ",
+        let mode_str = if fake_mode { "🔴 FAKE" } else { "🟢 REAL" };
+        print!("\r{} CPU: {:5.1}% | RAM: {}/{} MB | Uptime: {}s    ",
+            mode_str,
             stats.cpu_usage_percent,
             stats.memory_used_mb,
             stats.memory_total_mb,
