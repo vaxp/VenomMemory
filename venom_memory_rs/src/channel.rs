@@ -189,6 +189,11 @@ impl DaemonChannel {
     pub fn namespace(&self) -> &str {
         self.shm.name()
     }
+
+    /// Get raw pointer to shared memory base
+    pub fn as_ptr(&self) -> *mut u8 {
+        self.shm.as_ptr()
+    }
 }
 
 /// Shell (Reader) side of the channel
@@ -311,6 +316,11 @@ impl ShellChannel {
     /// Get the namespace of the channel
     pub fn namespace(&self) -> &str {
         self.shm.name()
+    }
+
+    /// Get raw pointer to shared memory base
+    pub fn as_ptr(&self) -> *const u8 {
+        self.shm.as_ptr()
     }
 }
 

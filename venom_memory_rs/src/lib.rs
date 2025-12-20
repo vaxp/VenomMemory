@@ -18,6 +18,7 @@ pub mod shm;
 pub mod seqlock;
 pub mod mpsc_queue;
 pub mod channel;
+pub mod bindings;
 
 pub use error::{VenomError, Result};
 pub use channel::{DaemonChannel, ShellChannel, ChannelConfig};
