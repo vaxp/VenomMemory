@@ -3,7 +3,7 @@
 /// This file provides Dart bindings to the VenomMemory C library.
 
 import 'dart:ffi';
-import 'dart:io';
+// import 'dart:io';
 import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 
