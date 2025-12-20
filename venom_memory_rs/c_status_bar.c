@@ -12,15 +12,16 @@
 #include "venom_memory_rs.h"
 
 // Must match SystemStats struct in system_daemon.rs exactly!
-typedef struct __attribute__((packed)) {
-    float cpu_usage_percent;
-    float cpu_cores[16];
-    uint32_t core_count;
-    uint32_t memory_used_mb;
-    uint32_t memory_total_mb;
-    uint64_t uptime_seconds;
-    uint64_t timestamp_ns;
-} SystemStats;
+// Rust uses #[repr(C)] so we use the same C layout
+typedef struct {
+    float cpu_usage_percent;      // 4 bytes, offset 0
+    float cpu_cores[16];          // 64 bytes, offset 4
+    uint32_t core_count;          // 4 bytes, offset 68
+    uint32_t memory_used_mb;      // 4 bytes, offset 72
+    uint32_t memory_total_mb;     // 4 bytes, offset 76
+    uint64_t uptime_seconds;      // 8 bytes, offset 80
+    uint64_t timestamp_ns;        // 8 bytes, offset 88
+} SystemStats;                    // Total: 96 bytes
 
 void print_bar(float percent, int width) {
     int filled = (int)((percent / 100.0f) * width);
@@ -47,6 +48,8 @@ int main() {
     printf("║   Connecting to Rust system_daemon via C Bindings             ║\n");
     printf("╚═══════════════════════════════════════════════════════════════╝\n\n");
 
+    printf("📏 sizeof(SystemStats) in C: %zu bytes\n", sizeof(SystemStats));
+
     // Connect to the Rust daemon's channel
     VenomShellHandle* shell = venom_shell_connect("system_monitor");
     if (!shell) {
@@ -60,12 +63,12 @@ int main() {
     printf("📊 Reading system stats from Rust daemon...\n\n");
     sleep(1);
 
-    uint8_t* buf = malloc(sizeof(SystemStats) + 128);
+    uint8_t* buf = malloc(sizeof(SystemStats) + 256);
     int frame = 0;
 
     while (1) {
         // Read from shared memory (this is the C binding call!)
-        size_t len = venom_shell_read_data(shell, buf, sizeof(SystemStats) + 128);
+        size_t len = venom_shell_read_data(shell, buf, sizeof(SystemStats) + 256);
 
         if (len >= sizeof(SystemStats)) {
             SystemStats* stats = (SystemStats*)buf;
@@ -84,10 +87,11 @@ int main() {
             
             printf("╠═══════════════════════════════════════════════════════════════╣\n");
             
-            // Per-core (show up to 8)
-            int cores = stats->core_count > 8 ? 8 : stats->core_count;
-            for (int i = 0; i < cores; i++) {
-                printf("║    Core %d: ", i);
+            // Per-core (show all cores up to core_count)
+            uint32_t cores = stats->core_count;
+            if (cores > 16) cores = 16;
+            for (uint32_t i = 0; i < cores; i++) {
+                printf("║    Core %u: ", i);
                 print_bar(stats->cpu_cores[i], 20);
                 printf(" %5.1f%%                ║\n", stats->cpu_cores[i]);
             }
@@ -95,25 +99,31 @@ int main() {
             printf("╠═══════════════════════════════════════════════════════════════╣\n");
             
             // Memory
-            float mem_pct = (float)stats->memory_used_mb / stats->memory_total_mb * 100.0f;
+            float mem_pct = 0;
+            if (stats->memory_total_mb > 0) {
+                mem_pct = (float)stats->memory_used_mb / (float)stats->memory_total_mb * 100.0f;
+            }
             printf("║  RAM: ");
             print_bar(mem_pct, 25);
-            printf(" %u/%u MB         ║\n", 
-                stats->memory_used_mb, stats->memory_total_mb);
+            printf(" %u/%u MB (%3.0f%%)   ║\n", 
+                stats->memory_used_mb, stats->memory_total_mb, mem_pct);
             
             printf("╠═══════════════════════════════════════════════════════════════╣\n");
             
             // Uptime
             uint64_t s = stats->uptime_seconds;
-            uint64_t h = s / 3600;
+            uint64_t d = s / 86400;
+            uint64_t h = (s % 86400) / 3600;
             uint64_t m = (s % 3600) / 60;
-            printf("║  ⏱️  Uptime: %luh %lum                                         ║\n", 
-                (unsigned long)h, (unsigned long)m);
+            printf("║  ⏱️  Uptime: %lud %luh %lum                                     ║\n", 
+                (unsigned long)d, (unsigned long)h, (unsigned long)m);
             
             printf("╚═══════════════════════════════════════════════════════════════╝\n");
-            printf("\n  Press Ctrl+C to exit\n");
+            printf("\n  Cores: %u | Read: %zu bytes | Press Ctrl+C to exit\n", 
+                stats->core_count, len);
         } else {
-            printf("⏳ Waiting for data from daemon... (got %zu bytes)\n", len);
+            printf("⏳ Waiting for data from daemon... (got %zu bytes, need %zu)\n", 
+                len, sizeof(SystemStats));
         }
 
         usleep(100000); // 100ms

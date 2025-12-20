@@ -145,10 +145,8 @@ pub unsafe extern "C" fn venom_shell_read_data(
     max_len: usize,
 ) -> usize {
     let shell = &(*handle).0;
-    // We need to pass a slice to read_data_with_len. 
-    // It expects a mutable slice to write into.
     let slice = slice::from_raw_parts_mut(buf, max_len);
-    shell.read_data_with_len(slice)
+    shell.read_data(slice)
 }
 
 /// Shell: Get Client ID
